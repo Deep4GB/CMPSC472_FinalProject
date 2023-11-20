@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elderly Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto py-8 px-4">
+        <h1 class="text-4xl font-bold text-center mb-8">Elderly Management System</h1>
+
+        <!-- Medication Form -->
+        <div class="flex justify-center mb-4">
+            <form action="/add_medication" method="post" class="flex items-center space-x-2">
+                <input type="text" name="medication_name" placeholder="Medication Name" class="p-2 rounded-md border">
+                <input type="text" name="dosage" placeholder="Dosage" class="p-2 rounded-md border">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Medication</button>
+            </form>
+        </div>
+
+        <!-- Reminders Form with Time -->
+        <div class="flex justify-center mb-4">
+            <form action="/add_reminder" method="post" class="flex items-center space-x-2">
+                <input type="text" name="reminder_text" placeholder="Add Reminder" class="p-2 rounded-md border">
+                <input type="time" name="reminder_time" class="p-2 rounded-md border">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Reminder</button>
+            </form>
+        </div>
+
+        <!-- Appointments Form -->
+        <div class="flex justify-center mb-4">
+            <form action="/add_appointment" method="post" class="flex items-center space-x-2">
+                <input type="text" name="appointment_info" placeholder="Add Appointment Info" class="p-2 rounded-md border">
+                <input type="datetime-local" name="appointment_time" class="p-2 rounded-md border">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Appointment</button>
+            </form>
+        </div>
+
+        <!-- Health Data Form -->
+        <div class="flex justify-center mb-4">
+            <form action="/add_health_data" method="post" class="flex items-center space-x-2">
+                <input type="text" name="health_metric" placeholder="Add Health Data" class="p-2 rounded-md border">
+                <input type="datetime-local" name="health_time" class="p-2 rounded-md border">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Health Data</button>
+            </form>
+        </div>
+
+        <!-- Display Medications -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-2">Medications</h2>
+            <ul class="list-disc pl-4">
+                {% for medication in medications %}
+                    <li>{{ medication.medication_name }} - {{ medication.dosage }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Display Reminders -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-2">Reminders</h2>
+            <ul id="remindersList" class="list-disc pl-4">
+                <!-- Reminders will be dynamically populated here -->
+            </ul>
+        </div>
+
+        <!-- Display Appointments -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-2">Appointments</h2>
+            <ul class="list-disc pl-4">
+                {% for appointment in appointments %}
+                    <li>{{ appointment.appointment_info }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Display Health Data -->
+        <div>
+            <h2 class="text-2xl font-bold mb-2">Health Data</h2>
+            <ul class="list-disc pl-4">
+                {% for data in health_data %}
+                    <li>{{ data.timestamp }} - {{ data.health_metric }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript logic to generate reminders based on the current time
+        const remindersList = document.getElementById('remindersList');
+
+        // Function to check the current time and display reminders
+        function checkReminders() {
+            const currentTime = new Date();
+
+            // Example: Check for a specific reminder time (modify this as needed)
+            const medicationTime = new Date('2023-11-20T08:00:00'); // Set the medication time
+            if (currentTime.getHours() === medicationTime.getHours() && currentTime.getMinutes() === medicationTime.getMinutes()) {
+                const reminderItem = document.createElement('li');
+                reminderItem.textContent = 'Take your medicine now.';
+                remindersList.appendChild(reminderItem);
+            }
+
+            // Add more logic for other reminders or appointments
+            // Example: Check for appointments and display reminders
+            // const appointmentTime = new Date('2023-11-20T14:00:00'); // Set the appointment time
+            // if (currentTime.getHours() === appointmentTime.getHours() && currentTime.getMinutes() === appointmentTime.getMinutes()) {
+            //     const reminderItem = document.createElement('li');
+            //     reminderItem.textContent = 'Appointment today at 2:00 PM.';
+            //     remindersList.appendChild(reminderItem);
+            // }
+        }
+
+        // Call the function initially
+        checkReminders();
+
+        // Update the reminders every minute
+        setInterval(checkReminders, 60000); // Check every minute
+    </script>
+</body>
+
+</html>
