@@ -3,131 +3,251 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Elderly Management System</title>
+    <title>Reminder App</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            /* Lighter background color */
+            color: #333;
+            /* Darker text color */
+        }
+
+        .reminder-card {
+            background-color: #fff;
+            /* White background for cards */
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* Shadow effect */
+        }
+
+        .reminder-card-header {
+            padding: 10px;
+        }
+
+        .reminder-form {
+            padding: 20px;
+        }
+
+        .reminder-list {
+            padding: 20px;
+        }
+
+        .delete-btn {
+            background-color: #e53e3e;
+            /* Delete button background color */
+            color: #fff;
+            /* Delete button text color */
+        }
+    </style>
 </head>
 
-<body class="bg-gray-800 text-gray-100">
-    <div class="container mx-auto py-8 px-4">
-        <h1 class="text-4xl font-bold text-center mb-8">Elderly Management System</h1>
-
-        <!-- Welcome message -->
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-semibold">Welcome to the Elderly Management System</h2>
-            <p class="text-lg">Please choose an option below:</p>
-        </div>
-
-        <!-- Cards for Options -->
-        <div class="flex justify-center space-x-4 mb-8">
-            <a href="#medications" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Medications</a>
-            <a href="#reminders" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">Reminders</a>
-            <a href="#appointments" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md">Appointments</a>
-            <a href="#healthdata" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md">Health Data</a>
-            <a href="#alldata" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">All Data</a>
-        </div>
-
-        <!-- Medication Form -->
-        <div id="medications" class="mb-8">
-            <h2 class="text-2xl font-bold mb-2">Medications</h2>
-            <form action="/add_medication" method="post" class="flex items-center space-x-2">
-                <input type="text" name="medication_name" placeholder="Medication Name" class="p-2 rounded-md border" style="color: black;">
-                <input type="text" name="dosage" placeholder="Dosage" class="p-2 rounded-md border" style="color: black;">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Medication</button>
-            </form>
-            <!-- Display Medications -->
-            <ul class="list-disc pl-4 mt-2">
-                {% for medication in medications %}
-                    <li>{{ medication.medication_name }} - {{ medication.dosage }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Reminders Form with Time -->
-        <div id="reminders" class="mb-8">
-            <h2 class="text-2xl font-bold mb-2">Reminders</h2>
-            <form action="/add_reminder" method="post" class="flex items-center space-x-2">
-                <input type="text" name="reminder_text" placeholder="Add Reminder" class="p-2 rounded-md border" style="color: black;">
-                <input type="time" name="reminder_time" class="p-2 rounded-md border" style="color: black;">
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md">Add Reminder</button>
-            </form>
-            <!-- Display Reminders -->
-            <ul class="list-disc pl-4 mt-2">
-                {% for reminder in reminders %}
-                    <li>{{ reminder.reminder_text }} - {{ reminder.reminder_time }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Appointments Form -->
-        <div id="appointments" class="mb-8">
-            <h2 class="text-2xl font-bold mb-2">Appointments</h2>
-            <form action="/add_appointment" method="post" class="flex items-center space-x-2">
-                <input type="text" name="appointment_info" placeholder="Add Appointment Info" class="p-2 rounded-md border" style="color: black;">
-                <input type="datetime-local" name="appointment_time" class="p-2 rounded-md border" style="color: black;">
-                <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded-md">Add Appointment</button>
-            </form>
-            <!-- Display Appointments -->
-            <ul class="list-disc pl-4 mt-2">
-                {% for appointment in appointments %}
-                    <li>{{ appointment.appointment_info }} - {{ appointment.appointment_time }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Health Data Form -->
-        <div id="healthdata" class="mb-8">
-            <h2 class="text-2xl font-bold mb-2">Health Data</h2>
-            <form action="/add_health_data" method="post" class="flex items-center space-x-2">
-                <input type="text" name="health_metric" placeholder="Add Health Data" class="p-2 rounded-md border" style="color: black;">
-                <input type="datetime-local" name="health_time" class="p-2 rounded-md border" style="color: black;">
-                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md">Add Health Data</button>
-            </form>
-            <!-- Display Health Data -->
-            <ul class="list-disc pl-4 mt-2">
-                {% for data in health_data %}
-                    <li>{{ data.timestamp }} - {{ data.health_metric }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Display All Data -->
-        <div id="alldata">
-            <h2 class="text-2xl font-bold mb-2">All Data</h2>
-            <!-- Display All Data -->
-            <div>
-                <h3 class="text-lg font-semibold">Medications:</h3>
-                <ul class="list-disc pl-4">
-                    {% for medication in medications %}
-                        <li>{{ medication.medication_name }} - {{ medication.dosage }}</li>
+<body class="bg-gray-150 mt-20">
+    <h1 class="text-3xl font-bold text-center mb-20">Elderly Reminder App</h1>
+    <div class="container mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- General Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-blue-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-2">General Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <form method="POST" action="/">
+                    <input type="hidden" name="reminder_type" value="general">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="general_reminder">Reminder:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_reminder"
+                            name="reminder" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="general_time">Time (HH:MM):</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_time" name="time"
+                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
+                    </div>
+                    <input
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Set Reminder">
+                </form>
+            </div>
+            <div class="reminder-list">
+                <h2 class="text-lg font-bold">General Reminders:</h2>
+                <ul>
+                    {% for reminder in current_general %}
+                    <li class="flex justify-between items-center">
+                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
+                        <button class="delete-btn px-3 py-1 rounded" onclick="deleteReminder('general')">Delete</button>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold">Reminders:</h3>
-                <ul class="list-disc pl-4">
-                    {% for reminder in reminders %}
-                        <li>{{ reminder.reminder_text }} - {{ reminder.reminder_time }}</li>
+        </div>
+
+        <!-- Medication Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-green-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-2">Medication Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <form method="POST" action="/medication">
+                    <input type="hidden" name="reminder_type" value="medications">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="medication_reminder">Medication
+                            Reminder:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_reminder"
+                            name="reminder" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="medication_time">Time (HH:MM):</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_time" name="time"
+                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
+                    </div>
+                    <input
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Set Medication Reminder">
+                </form>
+            </div>
+            <div class="reminder-list">
+                <h2 class="text-lg font-bold">Medication Reminders:</h2>
+                <ul>
+                    <!-- Loop through medication reminders -->
+                    {% for reminder in current_medications %}
+                    <li class="flex justify-between items-center">
+                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
+                        <button class="delete-btn px-3 py-1 rounded"
+                            onclick="deleteReminder('medications')">Delete</button>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold">Appointments:</h3>
-                <ul class="list-disc pl-4">
-                    {% for appointment in appointments %}
-                        <li>{{ appointment.appointment_info }} - {{ appointment.appointment_time }}</li>
+        </div>
+
+        <!-- Appointment Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-yellow-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-2">Appointment Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <form method="POST" action="/appointment">
+                    <input type="hidden" name="reminder_type" value="appointments">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="appointment_reminder">Appointment
+                            Reminder:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_reminder"
+                            name="reminder" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="appointment_time">Time (HH:MM):</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_time" name="time"
+                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
+                    </div>
+                    <input
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Set Appointment Reminder">
+                </form>
+            </div>
+            <div class="reminder-list">
+                <h2 class="text-lg font-bold">Appointment Reminders:</h2>
+                <ul>
+                    <!-- Loop through appointment reminders -->
+                    {% for reminder in current_appointments %}
+                    <li class="flex justify-between items-center">
+                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
+                        <button class="delete-btn px-3 py-1 rounded"
+                            onclick="deleteReminder('appointments')">Delete</button>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold">Health Data:</h3>
-                <ul class="list-disc pl-4">
-                    {% for data in health_data %}
-                        <li>{{ data.timestamp }} - {{ data.health_metric }}</li>
-                    {% endfor %}
-                </ul>
+        </div>
+
+        <!-- Daily Journal Section -->
+        <div class="reminder-card mt-8">
+            <div class="reminder-card-header bg-purple-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-2">Daily Journal</h1>
+            </div>
+            <div class="reminder-form">
+                <form id="journalForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="journal_entry">Today's Journal Entry:</label>
+                        <textarea class="border rounded-md px-3 py-2 w-full h-24" id="journal_entry"
+                            name="journal_entry" required></textarea>
+                    </div>
+                    <input
+                        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Save Journal Entry">
+                </form>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const journalForm = document.getElementById('journalForm');
+            journalForm.addEventListener('submit', saveJournalEntry);
+
+            loadJournalEntry();
+
+            function saveJournalEntry(event) {
+                event.preventDefault();
+                const entry = document.getElementById('journal_entry').value;
+                const currentDate = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
+                const journalData = {
+                    date: currentDate,
+                    entry: entry
+                };
+
+                let existingEntries = localStorage.getItem('journalEntries');
+                existingEntries = existingEntries ? JSON.parse(existingEntries) : [];
+
+                existingEntries.push(journalData);
+                localStorage.setItem('journalEntries', JSON.stringify(existingEntries));
+
+                loadJournalEntry();
+                journalForm.reset();
+            }
+
+            function loadJournalEntry() {
+                let existingEntries = localStorage.getItem('journalEntries');
+                existingEntries = existingEntries ? JSON.parse(existingEntries) : [];
+
+                const journalList = document.createElement('ul');
+                journalList.classList.add('reminder-list');
+
+                existingEntries.forEach(entry => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('flex', 'justify-between', 'items-center');
+                    listItem.innerHTML = `<span>${entry.date}: ${entry.entry}</span>`;
+                    journalList.appendChild(listItem);
+                });
+
+                const journalSection = document.querySelector('.reminder-card:last-child');
+                journalSection.querySelector('.reminder-list').remove(); // Remove existing list
+                journalSection.appendChild(journalList); // Append updated list
+            }
+        });
+    </script>
+
+
+        <script>
+            function deleteReminder(reminderType) {
+                fetch('/delete_reminder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 'reminder_type': reminderType })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        </script>
 </body>
 
 </html>

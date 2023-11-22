@@ -1,77 +1,122 @@
-from flask import Flask, render_template, request, redirect, url_for
+import datetime
+import subprocess
+import threading
+import time
 import json
-from datetime import datetime
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Data files path
-MEDICATION_FILE = 'data/medications.json'
-REMINDERS_FILE = 'data/reminders.json'
-APPOINTMENTS_FILE = 'data/appointments.json'
-HEALTH_DATA_FILE = 'data/health_data.json'
-
-# Check and create data files if they don't exist
-for file in [MEDICATION_FILE, REMINDERS_FILE, APPOINTMENTS_FILE, HEALTH_DATA_FILE]:
+# Function to load reminders from JSON files
+def load_reminders(file_name):
     try:
-        with open(file, 'r') as f:
-            pass
+        with open(file_name, 'r') as file:
+            return json.load(file)
     except FileNotFoundError:
-        with open(file, 'w') as f:
-            json.dump([], f)
+        return []
 
-# Load data from files
-def load_data(file):
-    with open(file, 'r') as f:
-        return json.load(f)
+# Function to save reminders to JSON files
+def save_reminders(file_name, reminders):
+    with open(file_name, 'w') as file:
+        json.dump(reminders, file)
 
-# Save data to files
-def save_data(data, file):
-    with open(file, 'w') as f:
-        json.dump(data, f)
+# Function to load journal entries from JSON file
+def load_journal_entries():
+    try:
+        with open('data/journal_entries.json', 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
 
-@app.route('/')
+# Function to save journal entries to JSON file
+def save_journal_entry(entry):
+    journal_entries = load_journal_entries()
+    journal_entries.append(entry)
+    with open('data/journal_entries.json', 'w') as file:
+        json.dump(journal_entries, file)
+
+# Variables to hold the current reminders
+current_general_reminders = load_reminders('data/general_reminders.json')
+current_medications = load_reminders('data/medications.json')
+current_appointments = load_reminders('data/appointments.json')
+
+# Dictionary to hold the current reminders
+current_reminders = {'general': None, 'medications': None, 'appointments': None}
+
+# Function to schedule notification for reminders
+def schedule_notification(reminder_text, reminder_time):
+    while True:
+        current_time = datetime.datetime.now().strftime('%H:%M')  # Get current time in 24-hour format
+        if current_time == reminder_time:
+            notification_title = 'Reminder'
+            notification_text = f"Don't forget: {reminder_text}"
+            subprocess.run(['osascript', '-e', f'display notification "{notification_text}" with title "{notification_title}"'])
+            break
+        # Check every second
+        time.sleep(1)
+
+# Function to add a reminder
+def add_reminder(reminder_type, reminder_text, reminder_time):
+    global current_reminders
+    reminder = (reminder_text, reminder_time)
+    if reminder_type == 'general':
+        current_reminders['general'] = reminder
+        current_general_reminders.append(reminder)
+        save_reminders('data/general_reminders.json', current_general_reminders)
+    elif reminder_type == 'medications':
+        current_reminders['medications'] = reminder
+        current_medications.append(reminder)
+        save_reminders('data/medications.json', current_medications)
+    elif reminder_type == 'appointments':
+        current_reminders['appointments'] = reminder
+        current_appointments.append(reminder)
+        save_reminders('data/appointments.json', current_appointments)
+
+    # Start a thread for the new reminder
+    thread = threading.Thread(target=schedule_notification, args=(reminder_text, reminder_time))
+    thread.daemon = True
+    thread.start()
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    medications = load_data(MEDICATION_FILE)
-    reminders = load_data(REMINDERS_FILE)
-    appointments = load_data(APPOINTMENTS_FILE)
-    health_data = load_data(HEALTH_DATA_FILE)
-    return render_template('index.html', medications=medications, reminders=reminders, appointments=appointments, health_data=health_data)
+    global current_reminders
+    if request.method == 'POST':
+        reminder_type = request.form['reminder_type']
+        reminder_text = request.form['reminder']
+        reminder_time = request.form['time']
+        add_reminder(reminder_type, reminder_text, reminder_time)
+    current_journal_entries = load_journal_entries()
+    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders, current_journal_entries=current_journal_entries)
 
-@app.route('/add_medication', methods=['POST'])
-def add_medication():
-    medication_name = request.form.get('medication_name')
-    dosage = request.form.get('dosage')
-    medications = load_data(MEDICATION_FILE)
-    medications.append({"medication_name": medication_name, "dosage": dosage})
-    save_data(medications, MEDICATION_FILE)
-    return redirect(url_for('index'))
+@app.route('/delete_reminder', methods=['POST'])
+def delete_reminder():
+    reminder_type = request.json['reminder_type']
+    if reminder_type == 'general':
+        global current_general_reminders
+        current_general_reminders = []
+        save_reminders('data/general_reminders.json', current_general_reminders)
+        current_reminders['general'] = None
+    elif reminder_type == 'medications':
+        global current_medications
+        current_medications = []
+        save_reminders('data/medications.json', current_medications)
+        current_reminders['medications'] = None
+    elif reminder_type == 'appointments':
+        global current_appointments
+        current_appointments = []
+        save_reminders('data/appointments.json', current_appointments)
+        current_reminders['appointments'] = None
+    return jsonify({'success': True})
 
-@app.route('/add_reminder', methods=['POST'])
-def add_reminder():
-    reminder_text = request.form.get('reminder_text')
-    reminder_time = request.form.get('reminder_time')
-    reminders = load_data(REMINDERS_FILE)
-    reminders.append({"reminder_text": reminder_text, "reminder_time": reminder_time})
-    save_data(reminders, REMINDERS_FILE)
-    return redirect(url_for('index'))
+@app.route('/save_journal_entry', methods=['POST'])
+def save_journal_entry_route():
+    entry = request.json.get('entry')
+    date = datetime.datetime.now().strftime('%Y-%m-%d')  # Get current date in YYYY-MM-DD format
 
-@app.route('/add_appointment', methods=['POST'])
-def add_appointment():
-    appointment_info = request.form.get('appointment_info')
-    appointment_time = request.form.get('appointment_time')
-    appointments = load_data(APPOINTMENTS_FILE)
-    appointments.append({"appointment_info": appointment_info, "appointment_time": appointment_time})
-    save_data(appointments, APPOINTMENTS_FILE)
-    return redirect(url_for('index'))
-
-@app.route('/add_health_data', methods=['POST'])
-def add_health_data():
-    health_metric = request.form.get('health_metric')
-    health_time = request.form.get('health_time')
-    health_data = load_data(HEALTH_DATA_FILE)
-    health_data.append({"timestamp": health_time, "health_metric": health_metric})
-    save_data(health_data, HEALTH_DATA_FILE)
-    return redirect(url_for('index'))
+    journal_entry = {'date': date, 'entry': entry}
+    save_journal_entry(journal_entry)
+    
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug=True)
