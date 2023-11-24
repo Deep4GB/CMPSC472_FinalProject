@@ -20,21 +20,6 @@ def save_reminders(file_name, reminders):
     with open(file_name, 'w') as file:
         json.dump(reminders, file)
 
-# Function to load journal entries from JSON file
-def load_journal_entries():
-    try:
-        with open('data/journal_entries.json', 'r') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return []
-
-# Function to save journal entries to JSON file
-def save_journal_entry(entry):
-    journal_entries = load_journal_entries()
-    journal_entries.append(entry)
-    with open('data/journal_entries.json', 'w') as file:
-        json.dump(journal_entries, file)
-
 # Variables to hold the current reminders
 current_general_reminders = load_reminders('data/general_reminders.json')
 current_medications = load_reminders('data/medications.json')
@@ -79,44 +64,58 @@ def add_reminder(reminder_type, reminder_text, reminder_time):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    global current_reminders
+    global current_reminders, current_general_reminders, current_medications, current_appointments
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
         reminder_time = request.form['time']
         add_reminder(reminder_type, reminder_text, reminder_time)
-    current_journal_entries = load_journal_entries()
-    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders, current_journal_entries=current_journal_entries)
+    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders)
+
+@app.route('/medication', methods=['POST'])
+def add_medication_reminder():
+    if request.method == 'POST':
+        reminder_type = request.form['reminder_type']
+        reminder_text = request.form['reminder']
+        reminder_time = request.form['time']
+        add_reminder(reminder_type, reminder_text, reminder_time)
+    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders)
+
+@app.route('/appointment', methods=['POST'])
+def add_appointment_reminder():
+    if request.method == 'POST':
+        reminder_type = request.form['reminder_type']
+        reminder_text = request.form['reminder']
+        reminder_time = request.form['time']
+        add_reminder(reminder_type, reminder_text, reminder_time)
+    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders)
+
 
 @app.route('/delete_reminder', methods=['POST'])
 def delete_reminder():
     reminder_type = request.json['reminder_type']
+    index = int(request.json['index'])  # Convert index to integer
+    
     if reminder_type == 'general':
         global current_general_reminders
-        current_general_reminders = []
-        save_reminders('data/general_reminders.json', current_general_reminders)
-        current_reminders['general'] = None
+        if 0 <= index < len(current_general_reminders):
+            del current_general_reminders[index]  # Delete the specific reminder
+            save_reminders('data/general_reminders.json', current_general_reminders)
+            current_reminders['general'] = None if not current_general_reminders else current_general_reminders[0]
     elif reminder_type == 'medications':
         global current_medications
-        current_medications = []
-        save_reminders('data/medications.json', current_medications)
-        current_reminders['medications'] = None
+        if 0 <= index < len(current_medications):
+            del current_medications[index]  # Delete the specific reminder
+            save_reminders('data/medications.json', current_medications)
+            current_reminders['medications'] = None if not current_medications else current_medications[0]
     elif reminder_type == 'appointments':
         global current_appointments
-        current_appointments = []
-        save_reminders('data/appointments.json', current_appointments)
-        current_reminders['appointments'] = None
+        if 0 <= index < len(current_appointments):
+            del current_appointments[index]  # Delete the specific reminder
+            save_reminders('data/appointments.json', current_appointments)
+            current_reminders['appointments'] = None if not current_appointments else current_appointments[0]
     return jsonify({'success': True})
 
-@app.route('/save_journal_entry', methods=['POST'])
-def save_journal_entry_route():
-    entry = request.json.get('entry')
-    date = datetime.datetime.now().strftime('%Y-%m-%d')  # Get current date in YYYY-MM-DD format
-
-    journal_entry = {'date': date, 'entry': entry}
-    save_journal_entry(journal_entry)
-    
-    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -74,7 +74,8 @@
                     {% for reminder in current_general %}
                     <li class="flex justify-between items-center">
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
-                        <button class="delete-btn px-3 py-1 rounded" onclick="deleteReminder('general')">Delete</button>
+                        <button class="delete-btn px-3 py-1 rounded" onclick="deleteReminder('general', loop.index - 1)">Delete</button>
+                        <!-- For general reminders -->
                     </li>
                     {% endfor %}
                 </ul>
@@ -112,8 +113,9 @@
                     {% for reminder in current_medications %}
                     <li class="flex justify-between items-center">
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
-                        <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('medications')">Delete</button>
+                        <button class="delete-btn px-3 py-1 rounded" onclick="deleteReminder('medications', loop.index - 1)">Delete</button>
+<!-- For general reminders -->
+
                     </li>
                     {% endfor %}
                 </ul>
@@ -151,102 +153,36 @@
                     {% for reminder in current_appointments %}
                     <li class="flex justify-between items-center">
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
-                        <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('appointments')">Delete</button>
+                        <button class="delete-btn px-3 py-1 rounded" onclick="deleteReminder('appointments', loop.index - 1)">Delete</button>
+
                     </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-
-        <!-- Daily Journal Section -->
-        <div class="reminder-card mt-8">
-            <div class="reminder-card-header bg-purple-500 rounded-t-md text-white">
-                <h1 class="text-xl font-bold text-center py-2">Daily Journal</h1>
-            </div>
-            <div class="reminder-form">
-                <form id="journalForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="journal_entry">Today's Journal Entry:</label>
-                        <textarea class="border rounded-md px-3 py-2 w-full h-24" id="journal_entry"
-                            name="journal_entry" required></textarea>
-                    </div>
-                    <input
-                        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
-                        type="submit" value="Save Journal Entry">
-                </form>
-            </div>
-        </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const journalForm = document.getElementById('journalForm');
-            journalForm.addEventListener('submit', saveJournalEntry);
-
-            loadJournalEntry();
-
-            function saveJournalEntry(event) {
-                event.preventDefault();
-                const entry = document.getElementById('journal_entry').value;
-                const currentDate = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
-                const journalData = {
-                    date: currentDate,
-                    entry: entry
-                };
-
-                let existingEntries = localStorage.getItem('journalEntries');
-                existingEntries = existingEntries ? JSON.parse(existingEntries) : [];
-
-                existingEntries.push(journalData);
-                localStorage.setItem('journalEntries', JSON.stringify(existingEntries));
-
-                loadJournalEntry();
-                journalForm.reset();
-            }
-
-            function loadJournalEntry() {
-                let existingEntries = localStorage.getItem('journalEntries');
-                existingEntries = existingEntries ? JSON.parse(existingEntries) : [];
-
-                const journalList = document.createElement('ul');
-                journalList.classList.add('reminder-list');
-
-                existingEntries.forEach(entry => {
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('flex', 'justify-between', 'items-center');
-                    listItem.innerHTML = `<span>${entry.date}: ${entry.entry}</span>`;
-                    journalList.appendChild(listItem);
-                });
-
-                const journalSection = document.querySelector('.reminder-card:last-child');
-                journalSection.querySelector('.reminder-list').remove(); // Remove existing list
-                journalSection.appendChild(journalList); // Append updated list
-            }
-        });
-    </script>
-
-
         <script>
-            function deleteReminder(reminderType) {
+            function deleteReminder(reminderType, index) {
                 fetch('/delete_reminder', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ 'reminder_type': reminderType })
+                    body: JSON.stringify({ 'reminder_type': reminderType, 'index': index })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.reload();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             }
+
         </script>
 </body>
 
