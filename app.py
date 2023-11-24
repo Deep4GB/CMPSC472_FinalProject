@@ -21,9 +21,19 @@ def save_reminders(file_name, reminders):
         json.dump(reminders, file)
 
 # Variables to hold the current reminders
-current_general_reminders = load_reminders('data/general_reminders.json')
-current_medications = load_reminders('data/medications.json')
-current_appointments = load_reminders('data/appointments.json')
+current_general_reminders = []
+current_medications = []
+current_appointments = []
+
+# Clear the reminder lists before loading from JSON files
+current_general_reminders.clear()
+current_general_reminders.extend(load_reminders('data/general_reminders.json'))
+
+current_medications.clear()
+current_medications.extend(load_reminders('data/medications.json'))
+
+current_appointments.clear()
+current_appointments.extend(load_reminders('data/appointments.json'))
 
 # Dictionary to hold the current reminders
 current_reminders = {'general': None, 'medications': None, 'appointments': None}
@@ -72,14 +82,33 @@ def index():
         add_reminder(reminder_type, reminder_text, reminder_time)
     return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders)
 
-@app.route('/medication', methods=['POST'])
-def add_medication_reminder():
+@app.route('/medication', methods=['GET', 'POST'])
+def medication_reminder():
+    global current_medications
+    
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
-        reminder_text = request.form['reminder']
-        reminder_time = request.form['time']
-        add_reminder(reminder_type, reminder_text, reminder_time)
-    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments, current_reminders=current_reminders)
+        medication_name = request.form['medication_name']
+        medication_dose = request.form['medication_dose']
+        # Get a list of reminder times selected by the user
+        reminder_times = request.form.getlist('reminder_times')
+
+        # Format the medication details
+        medication_details = {
+            'medication_name': medication_name,
+            'medication_dose': medication_dose,
+            'reminder_times': reminder_times
+        }
+
+        # Save medication details to the current_medications list
+        current_medications.append(medication_details)
+        save_reminders('data/medications.json', current_medications)
+
+        # Schedule reminders for each selected time
+        for time in reminder_times:
+            add_reminder(reminder_type, f"Take {medication_name} ({medication_dose})", time)
+
+    return render_template('medication.html', current_medications=current_medications)
 
 @app.route('/appointment', methods=['POST'])
 def add_appointment_reminder():
@@ -115,6 +144,30 @@ def delete_reminder():
             save_reminders('data/appointments.json', current_appointments)
             current_reminders['appointments'] = None if not current_appointments else current_appointments[0]
     return jsonify({'success': True})
+
+
+# Variable to hold health metrics
+health_metrics = []
+
+# Function to add health metrics
+def add_health_metrics(blood_pressure, heart_rate, other_metric):
+    global health_metrics
+    metrics = {
+        'blood_pressure': blood_pressure,
+        'heart_rate': heart_rate,
+        'other_metric': other_metric  # Add more metrics as needed
+    }
+    health_metrics.append(metrics)
+
+@app.route('/health', methods=['GET', 'POST'])
+def health_tracker():
+    if request.method == 'POST':
+        blood_pressure = request.form['blood_pressure']
+        heart_rate = request.form['heart_rate']
+        other_metric = request.form['other_metric']
+        add_health_metrics(blood_pressure, heart_rate, other_metric)
+    
+    return render_template('health.html', health_metrics=health_metrics)
 
 
 if __name__ == '__main__':
