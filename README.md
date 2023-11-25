@@ -12,13 +12,11 @@
 - [Functionality and Test Results](#functionality-and-test-results)
 - [Discussion and Conclusions](#discussion-and-conclusions)
 
----
 
 ## Project Overview
 
 This project aims to develop a software application designed to assist the elderly in managing their health and daily tasks efficiently. The application serves as a reminder system for medication, appointments, and other crucial tasks. Additionally, it includes a health tracking feature allowing users to input and monitor vital health metrics such as blood pressure and heart rate.
 
----
 
 ## Team Members
 
@@ -36,7 +34,6 @@ This project aims to develop a software application designed to assist the elder
   <div style="margin-left: 10px; font-weight: bold;">Dev Patel</div>
 </div>
 
----
 
 ## Project Goals
 
@@ -72,7 +69,6 @@ This project aims to develop a software application designed to assist the elder
    - **Objective:** Establish a platform that encourages collaboration among users, caregivers, and healthcare professionals, creating a supportive health ecosystem.
    - **Rationale:** Collaboration ensures a comprehensive approach to health management, involving multiple stakeholders for the benefit of the elderly individual.
 
----
 
 ## Significance of the Project
 
@@ -100,7 +96,6 @@ This project aims to develop a software application designed to assist the elder
    - The project introduces technology in a user-friendly manner, bridging the digital divide for older individuals.
    - It incorporates features that encourage social connections, such as shared health data or collaborative reminders.
 
----
 
 ## Installation and Usage Instructions
 
@@ -141,7 +136,6 @@ python3 app.py
 
 [Add usage instructions here]
 
----
 
 ## Code Structure
 
@@ -173,7 +167,6 @@ python3 app.py
 
 This outline provides an overview of the code structure, highlighting key functions, data storage, and the interaction between different components.
 
----
 
 ## Functionality and Test Results
 
@@ -214,7 +207,6 @@ This outline provides an overview of the code structure, highlighting key functi
      - **Accessibility:** Users of varying technological familiarity successfully engaged with the system.
      - **Inclusivity:** Project successfully bridged the digital divide.
 
----
 
 ## Discussion and Conclusions
 
@@ -236,6 +228,5 @@ For future iterations, the following enhancements or features could be considere
 - Incorporating AI-based predictive analysis for health trends based on input health metrics.
 - Implementing a more intuitive and customizable user interface to cater to individual preferences.
 
----
 
 <h3 align="center"> ━━━━━━ End of Document ━━━━━━ </h3>
