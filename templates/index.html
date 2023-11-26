@@ -101,6 +101,7 @@
             <div class="reminder-form">
                 <!-- Medication reminder form -->
                 <form method="POST" action="/medication" class="w-full max-w-md mx-auto">
+                    <input type="hidden" name="reminder_type" value="medication"> <!-- Add this line -->
                     <div class="mb-4">
                         <label class="block text-sm font-bold mb-2" for="medication_name">Medication Name:</label>
                         <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_name"
