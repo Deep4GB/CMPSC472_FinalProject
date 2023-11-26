@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Health Tracking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            background-color: #9cadd0;
+            color: #333;
+        }
+
+        .reminder-card {
+            background-color: rgba(255, 255, 255, 0.836);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .reminder-card-header {
+            padding: 15px;
+        }
+
+        .reminder-form {
+            padding: 20px;
+        }
+
+        .reminder-list {
+            padding: 20px;
+        }
+
+        .delete-btn {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 767px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-150 mt-8">
+    <!-- Health Tracking -->
+    <div class="container mx-auto py-8">
+        <div class="reminder-card mb-8 mx-4">
+            <div class="reminder-card-header bg-purple-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-3">Health Tracking</h1>
+            </div>
+            <div class="reminder-form p-4">
+                <!-- Health tracking form -->
+                <form method="POST" action="/health" class="w-full max-w-md mx-auto">
+                    <!-- Form fields -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="health_date">Date:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="health_date" name="date"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="blood_pressure">Blood Pressure:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="blood_pressure"
+                            name="blood_pressure" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="heart_rate">Heart Rate:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="heart_rate" name="heart_rate"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="other_metric">Other Metric:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="other_metric"
+                            name="other_metric">
+                    </div>
+                    <div class="text-center">
+                        <input
+                            class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
+                            type="submit" value="Add Health Metrics">
+                    </div>
+                </form>
+            </div>
+            <!-- Search date input -->
+            <div class="mt-4 px-4">
+                <label class="block text-sm font-bold mb-2" for="search_date">Search by Date:</label>
+                <input class="border rounded-md px-3 py-2 w-full" type="date" id="search_date" name="search_date">
+                <button onclick="searchByDate()"
+                    class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Search</button>
+            </div>
+
+            <!-- List of health metrics -->
+            <div class="reminder-list p-4">
+                <h2 class="text-lg font-bold">Health Metrics:</h2>
+                <ul id="health_metrics_list">
+                    <!-- Health metrics will be displayed here -->
+                </ul>
+            </div>
+            <div class="reminder-list p-4">
+                <!-- List of health metrics -->
+                <h2 class="text-lg font-bold">Health Metrics:</h2>
+                <ul>
+                    <!-- Loop through health metrics here -->
+                    {% for metric in health_metrics %}
+                    <li class="border-b py-3">
+                        <p><strong>Date:</strong> {{ metric.health_date }}</p>
+                        <p><strong>Blood Pressure:</strong> {{ metric.blood_pressure }}</p>
+                        <p><strong>Heart Rate:</strong> {{ metric.heart_rate }}</p>
+                        <p><strong>Other Metric:</strong> {{ metric.other_metric }}</p>
+                        <!-- Add more health metrics as needed -->
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mb-10">
+        <a href="/" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Go
+            Back</a>
+    </div>
+
+
+    <script>
+        function searchByDate() {
+            const selectedDate = document.getElementById('search_date').value;
+            fetch(`/health?date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => displayHealthMetrics(data));
+        }
+
+        function displayHealthMetrics(metrics) {
+            const healthList = document.getElementById('health_metrics_list');
+            healthList.innerHTML = ''; // Clear previous results
+            metrics.forEach(metric => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('border-b', 'py-3');
+                listItem.innerHTML = `
+                <p><strong>Date:</strong> ${metric.health_date}</p>
+                <p><strong>Blood Pressure:</strong> ${metric.blood_pressure}</p>
+                <p><strong>Heart Rate:</strong> ${metric.heart_rate}</p>
+                <p><strong>Other Metric:</strong> ${metric.other_metric}</p>
+            `;
+                healthList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+
+</html>
