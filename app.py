@@ -41,7 +41,7 @@ current_reminders = {'general': None,
                      'medications': None, 'appointments': None}
 
 def add_reminder_with_date(reminder_type, reminder_text, reminder_date, reminder_time):
-    global current_reminders
+    global current_general_reminders, current_appointments
 
     reminder_datetime = datetime.datetime.strptime(
         f"{reminder_date} {reminder_time}", "%Y-%m-%d %H:%M")
@@ -53,36 +53,39 @@ def add_reminder_with_date(reminder_type, reminder_text, reminder_date, reminder
 
         if reminder_type == 'general':
             current_general_reminders.append(reminder)
-            save_reminders('data/general_reminders.json',
-                           current_general_reminders)
+            save_reminders('data/general_reminders.json', current_general_reminders)
         elif reminder_type == 'appointments':
             current_appointments.append(reminder)
             save_reminders('data/appointments.json', current_appointments)
 
         # Schedule reminders for the specified date and time
         thread = threading.Thread(target=schedule_notification, args=(
-            reminder_text, reminder_date, reminder_time))
+            reminder_type, reminder_text, reminder_date, reminder_time))  # Pass reminder_type here
         thread.daemon = True
         thread.start()
 
-def schedule_notification(reminder_text, reminder_date, reminder_time):
+
+def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_time):
     while True:
         current_datetime = datetime.datetime.now()
-        current_date = current_datetime.strftime(
-            '%Y-%m-%d')  # Get current date
-        current_time = current_datetime.strftime(
-            '%H:%M')     # Get current time
+        current_date = current_datetime.strftime('%Y-%m-%d')
+        current_time = current_datetime.strftime('%H:%M')
 
-        # Check if current date and time match the reminder date and time
         if current_date == reminder_date and current_time == reminder_time:
             notification_title = 'Reminder'
-            notification_text = f"Don't forget: {reminder_text}"
-            subprocess.run(
-                ['osascript', '-e', f'display notification "{notification_text}" with title "{notification_title}"'])
+            if reminder_type == 'general':
+                notification_text = f"Do not forget: {reminder_text}"
+            elif reminder_type == 'appointments':
+                notification_text = f"Appointment reminder: {reminder_text}"
+            elif reminder_type == 'medication':
+                notification_text = f"Medication reminder: {reminder_text}"
+
+            command = f'display notification "{notification_text}" with title "{notification_title}"'
+            subprocess.run(['osascript', '-e', command])
             break
 
-        # Check every second
         time.sleep(1)
+
 
 # Updated route to handle adding reminders with date and time
 @app.route('/', methods=['GET', 'POST'])
@@ -156,26 +159,22 @@ def delete_reminder():
 
     if reminder_type == 'general':
         global current_general_reminders
-        current_general_reminders = load_reminders(
-            'data/general_reminders.json')
         if 0 <= index < len(current_general_reminders):
             del current_general_reminders[index]
-            save_reminders('data/general_reminders.json',
-                           current_general_reminders)
+            save_reminders('data/general_reminders.json', current_general_reminders)
     elif reminder_type == 'medications':
         global current_medications
-        current_medications = load_reminders('data/medications.json')
         if 0 <= index < len(current_medications):
             del current_medications[index]
             save_reminders('data/medications.json', current_medications)
     elif reminder_type == 'appointments':
         global current_appointments
-        current_appointments = load_reminders('data/appointments.json')
         if 0 <= index < len(current_appointments):
             del current_appointments[index]
             save_reminders('data/appointments.json', current_appointments)
 
     return jsonify({'success': True})
+
 
 # --------------------------Health Page--------------------------
 
