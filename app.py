@@ -4,10 +4,13 @@ import threading
 import time
 import json
 from flask import Flask, render_template, request, jsonify
+from plyer import notification
 
 app = Flask(__name__)
 
 # Function to load reminders from JSON files
+
+
 def load_reminders(file_name):
     try:
         with open(file_name, 'r') as file:
@@ -16,6 +19,8 @@ def load_reminders(file_name):
         return []
 
 # Function to save reminders to JSON files
+
+
 def save_reminders(file_name, reminders):
     with open(file_name, 'w') as file:
         json.dump(reminders, file)
@@ -40,6 +45,7 @@ current_appointments.extend(load_reminders('data/appointments.json'))
 current_reminders = {'general': None,
                      'medications': None, 'appointments': None}
 
+
 def add_reminder_with_date(reminder_type, reminder_text, reminder_date, reminder_time):
     global current_general_reminders, current_appointments
 
@@ -53,7 +59,8 @@ def add_reminder_with_date(reminder_type, reminder_text, reminder_date, reminder
 
         if reminder_type == 'general':
             current_general_reminders.append(reminder)
-            save_reminders('data/general_reminders.json', current_general_reminders)
+            save_reminders('data/general_reminders.json',
+                           current_general_reminders)
         elif reminder_type == 'appointments':
             current_appointments.append(reminder)
             save_reminders('data/appointments.json', current_appointments)
@@ -80,8 +87,12 @@ def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_
             elif reminder_type == 'medication':
                 notification_text = f"Medication reminder: {reminder_text}"
 
-            command = f'display notification "{notification_text}" with title "{notification_title}"'
-            subprocess.run(['osascript', '-e', command])
+            notification.notify(
+                title=notification_title,
+                message=notification_text,
+                app_name="Reminder App",
+                timeout=10  # Notification timeout in seconds
+            )
             break
 
         time.sleep(1)
@@ -161,7 +172,8 @@ def delete_reminder():
         global current_general_reminders
         if 0 <= index < len(current_general_reminders):
             del current_general_reminders[index]
-            save_reminders('data/general_reminders.json', current_general_reminders)
+            save_reminders('data/general_reminders.json',
+                           current_general_reminders)
     elif reminder_type == 'medications':
         global current_medications
         if 0 <= index < len(current_medications):
@@ -187,14 +199,19 @@ def load_health_metrics(file_name):
         return []
 
 # Function to save health metrics to JSON file
+
+
 def save_health_metrics(file_name, health_metrics):
     with open(file_name, 'w') as file:
         json.dump(health_metrics, file)
+
 
 # Load health metrics once when the app starts
 health_metrics = load_health_metrics('data/health_data.json')
 
 # Function to handle health metrics
+
+
 def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
     global health_metrics
     metrics = {
@@ -207,6 +224,8 @@ def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
     save_health_metrics('data/health_data.json', health_metrics)
 
 # Flask route for health metrics with search functionality
+
+
 @app.route('/health', methods=['GET', 'POST'])
 def health_tracker():
     global health_metrics
@@ -215,19 +234,22 @@ def health_tracker():
         blood_pressure = request.form['blood_pressure']
         heart_rate = request.form['heart_rate']
         other_metric = request.form['other_metric']
-        health_date = request.form['date']  # Retrieve the health date from the form
-        
+        # Retrieve the health date from the form
+        health_date = request.form['date']
+
         # Add health metrics along with the date
-        add_health_metrics(blood_pressure, heart_rate, other_metric, health_date)
+        add_health_metrics(blood_pressure, heart_rate,
+                           other_metric, health_date)
         # Reload the health metrics after adding new data
         health_metrics = load_health_metrics('data/health_data.json')
 
     # Search health metrics by date if a date parameter is present in the request
     search_date = request.args.get('date')
     if search_date:
-        filtered_metrics = [metric for metric in health_metrics if metric['health_date'] == search_date]
+        filtered_metrics = [
+            metric for metric in health_metrics if metric['health_date'] == search_date]
         return jsonify(filtered_metrics)
-    
+
     return render_template('health.html', health_metrics=health_metrics)
 
 
