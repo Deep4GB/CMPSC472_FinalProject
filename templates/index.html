@@ -85,7 +85,8 @@
                     <li class="flex justify-between items-center py-2 border-b">
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
                         <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('general', loop.index - 1)">Delete</button>
+                            onclick="deleteReminder('general', '{{reminder[0] }}')">Delete</button>
+
                     </li>
                     {% endfor %}
                 </ul>
@@ -189,7 +190,9 @@
                     <li class="flex justify-between items-center py-2 border-b">
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
                         <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('appointments', loop.index - 1)">Delete</button>
+                            onclick="deleteReminder('appointments', '{{ reminder[0] }}')">Delete</button>
+
+
                     </li>
                     {% endfor %}
                 </ul>
@@ -204,23 +207,23 @@
     </div>
 
     <script>
-        function deleteReminder(reminderType, index) {
+        function deleteReminder(reminderType, identifier) {
             // AJAX request to delete the reminder
             fetch('/delete_reminder', {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     reminder_type: reminderType,
-                    index: index
+                    identifier: identifier
                 })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // Remove the deleted reminder element from the UI
-                        const reminderElement = document.querySelector(`.${reminderType}-reminder-list li:nth-child(${index + 1})`);
+                        const reminderElement = document.querySelector(`.${reminderType}-reminder-list li[data-identifier="${identifier}"]`);
                         if (reminderElement) {
                             reminderElement.remove();
                         }

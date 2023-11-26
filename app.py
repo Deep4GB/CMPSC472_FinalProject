@@ -3,7 +3,7 @@ import subprocess
 import threading
 import time
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, redirect, render_template, request, jsonify
 from plyer import notification
 
 app = Flask(__name__)
@@ -163,34 +163,55 @@ def add_appointment_reminder():
     return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments)
 
 
-@app.route('/delete_reminder', methods=['POST'])
+@app.route('/delete_reminder', methods=['DELETE'])
 def delete_reminder():
     reminder_type = request.json['reminder_type']
-    index = int(request.json['index'])
+    identifier = request.json['identifier']
 
     if reminder_type == 'general':
         global current_general_reminders
-        if 0 <= index < len(current_general_reminders):
-            del current_general_reminders[index]
-            save_reminders('data/general_reminders.json',
-                           current_general_reminders)
+        current_general_reminders = [
+            reminder for reminder in current_general_reminders if reminder[0] != identifier
+        ]
+        save_reminders('data/general_reminders.json',
+                       current_general_reminders)
     elif reminder_type == 'medications':
         global current_medications
-        if 0 <= index < len(current_medications):
-            del current_medications[index]
-            save_reminders('data/medications.json', current_medications)
+        current_medications = [
+            medication for medication in current_medications if medication.medication_name != identifier
+        ]
+        save_reminders('data/medications.json', current_medications)
     elif reminder_type == 'appointments':
         global current_appointments
-        if 0 <= index < len(current_appointments):
-            del current_appointments[index]
-            save_reminders('data/appointments.json', current_appointments)
+        current_appointments = [
+            appointment for appointment in current_appointments if appointment[0] != identifier
+        ]
+        save_reminders('data/appointments.json', current_appointments)
 
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'redirect': '/refresh'})
 
 
+@app.route('/refresh')
+def refresh_data():
+    global current_general_reminders, current_medications, current_appointments
+
+    # Clear the reminder lists before loading from JSON files
+    current_general_reminders.clear()
+    current_general_reminders.extend(
+        load_reminders('data/general_reminders.json'))
+
+    current_medications.clear()
+    current_medications.extend(load_reminders('data/medications.json'))
+
+    current_appointments.clear()
+    current_appointments.extend(load_reminders('data/appointments.json'))
+
+    return redirect('/')
 # --------------------------Health Page--------------------------
 
 # Function to load health metrics from JSON file
+
+
 def load_health_metrics(file_name):
     try:
         with open(file_name, 'r') as file:
