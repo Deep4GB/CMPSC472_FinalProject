@@ -248,6 +248,17 @@ def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
         health_metrics.append(metrics)
         save_health_metrics('data/health_data.json', health_metrics)
 
+@app.route('/delete_health_record', methods=['DELETE'])
+def delete_health_record():
+    global health_metrics
+
+    health_date = request.json['health_date']
+    
+    # Remove the health record with the specified date
+    health_metrics = [metric for metric in health_metrics if metric['health_date'] != health_date]
+    save_health_metrics('data/health_data.json', health_metrics)
+
+    return jsonify({'success': True})
 
 # Flask route for health metrics with search functionality
 @app.route('/health', methods=['GET', 'POST'])

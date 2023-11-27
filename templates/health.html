@@ -49,7 +49,7 @@
 <body class="bg-gray-150 mt-8">
     <!-- Health Tracking -->
     <div class="container mx-auto py-8">
-        <div class="reminder-card mb-8 mx-4">
+        <div class="reminder-card mb-8 mx-40">
             <div class="reminder-card-header bg-purple-500 rounded-t-md text-white">
                 <h1 class="text-xl font-bold text-center py-3">Health Tracking</h1>
             </div>
@@ -110,7 +110,9 @@
                         <p><strong>Blood Pressure:</strong> {{ metric.blood_pressure }}</p>
                         <p><strong>Heart Rate:</strong> {{ metric.heart_rate }}</p>
                         <p><strong>Other Metric:</strong> {{ metric.other_metric }}</p>
-                        <!-- Add more health metrics as needed -->
+                        <!-- Add delete button with identifier for deletion -->
+                        <button class="mt-2 bg-red-500 hover:bg-red-700 text-white py-0 px-2 rounded cursor-pointer"
+                            onclick="deleteHealthRecord('{{ metric.health_date }}')">Delete</button>
                     </li>
                     {% endfor %}
                 </ul>
@@ -145,6 +147,27 @@
             `;
                 healthList.appendChild(listItem);
             });
+        }
+
+        function deleteHealthRecord(date) {
+            // Send a DELETE request to the Flask route for deleting health records
+            fetch('/delete_health_record', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ health_date: date })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // If deletion is successful, reload the page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to delete health record');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
