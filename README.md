@@ -123,21 +123,32 @@ git clone git@github.com:Deep4GB/CMPSC472_FinalProject.git
 cd CMPSC472_FinalProject
 ```
 #### 3. Create a Virtual Environment (recommended):
+Open the Command Prompt or Terminal and navigate to the project directory using the ``cd`` command.
+
+* Install `virtualenv` (if not installed) :
+   ```bash
+   pip install virtualenv
+   ```
+
+* Activate `virtualenv`:
+   ```bash
+   virtualenv venv
+   ```
+
 - On Windows:
-  
-  * Open the Command Prompt
-  * Navigate to your project directory using the ``cd`` command.
   * Activate the virtual environment
     ```bash
     venv\Scripts\activate
     ```
 - On macOS and Linux:
-  * Open the Terminal
-  * Navigate to your project directory using the ``cd`` command.
   * Activate the virtual environment
     ```bash
     source venv/bin/activate
     ```
+- To deactivate the virtual environment:
+  ```bash
+  deactivate
+  ```
 #### 4. Install the required packages using the following command:
 ```bash
 pip install -r requirements.txt
@@ -145,7 +156,7 @@ pip install -r requirements.txt
 
 #### 5. Run the application using the following command:
 ```bash
-python3 app.py
+python app.py
 ```
 ### Usage Instructions
 #
