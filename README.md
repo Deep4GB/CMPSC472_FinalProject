@@ -17,6 +17,21 @@
 
 This project aims to develop a software application designed to assist the elderly in managing their health and daily tasks efficiently. The application serves as a reminder system for medication, appointments, and other crucial tasks. Additionally, it includes a health tracking feature allowing users to input and monitor vital health metrics such as blood pressure and heart rate.
 
+This Flask project incorporates several Operating System (OS) concepts:
+
+1. **Threads:** Utilized for asynchronous tasks, such as scheduling reminders and checking health metrics, to prevent blocking the main application.
+
+2. **File Handling:** Reading and writing JSON files to store and retrieve reminders, medications, appointments, and health metrics.
+
+3. **Synchronization:** Implementing locks (`threading.Lock`) to manage access to shared resources (e.g., reminders and health metrics) to avoid data corruption when multiple threads access them concurrently.
+
+4. **Process Control:** Flask handles multiple HTTP requests and responses as separate processes to manage the web application's functionalities.
+
+5. **Timers and Polling:** Employing time-based functions (`time.sleep()`) for scheduling reminders and continuously checking the current time against scheduled reminder times.
+
+6. **Inter-Process Communication (IPC):** Using HTTP methods like POST, GET, and DELETE for communication between the client (browser) and the server (Flask application) to perform actions like adding reminders, deleting records, and retrieving health metrics.
+
+These concepts work together to facilitate the functioning of the application, manage data, handle user requests, and ensure concurrent operations without conflicts or data loss.
 
 ## Team Members
 
@@ -38,7 +53,7 @@ This project aims to develop a software application designed to assist the elder
 ## Project Goals
 
 1. **Enhance Daily Task Management:**
-   - **Objective:** Develop a user-friendly interface to enable elderly individuals to easily add, view, and manage daily reminders for tasks, appointments, and medication schedules.
+   - **Objective:** Develop a user-friendly interface to enable elderly individuals to easily add, view, and manage daily reminders for tasks, appointments, health metrics, and medication schedules.
    - **Rationale:** Empowering users to organize their daily activities fosters a sense of independence and reduces stress associated with memory lapses.
 
 2. **Facilitate Health Data Tracking:**
@@ -132,26 +147,84 @@ pip install -r requirements.txt
 ```bash
 python3 app.py
 ```
-### Usage
+### Usage Instructions
+#
+### General Reminders
 
-[Add usage instructions here]
+#### Adding a General Reminder:
+- Navigate to the "General Reminders" section.
+- Enter the reminder details: reminder text, date, and time in 24-hour format.
+- Click "Set Reminder" to add the reminder.
+
+#### Deleting a General Reminder:
+- In the list of general reminders, click the "Delete" button next to the reminder you want to remove.
+#
+### Medication Reminders
+
+#### Adding a Medication Reminder:
+- Go to the "Medication Reminders" section.
+- Enter medication details: name, dose, date, and select reminder times.
+- Click "Add Medication Reminder" to add the medication and set reminders.
+
+#### Deleting a Medication Reminder:
+- In the list of medication reminders, click the "Delete" button next to the medication you want to remove.
+#
+### Appointment Reminders
+
+#### Adding an Appointment Reminder:
+- Visit the "Appointment Reminders" section.
+- Enter appointment details: text, date, and time in 24-hour format.
+- Click "Set Appointment Reminder" to add the appointment.
+
+#### Deleting an Appointment Reminder:
+- In the list of appointment reminders, click the "Delete" button next to the appointment you want to remove.
+#
+### Health Metrics Tracking
+
+#### Adding Health Metrics:
+- Go to the "Health Tracking" section.
+- Enter health metrics: date, blood pressure, heart rate, and an optional additional metric.
+- Click "Add Health Metrics" to record the health data.
+
+#### Searching Health Metrics:
+- Use the "Search by Date" input to find health metrics for a specific date.
+- Click "Search" to display metrics for the selected date.
+
+#### Deleting Health Records:
+- In the list of health metrics, click the "Delete" button next to the record you want to remove.
+#
+### Refreshing Data
+
+- Click on "Check Your Health Metrics!!" to access the Health Metrics page and refresh the data.
+#
+### Note:
+
+- The time format for reminders is in 24-hour (military) format. Ensure to input the time accordingly; otherwise, the program won't accept the input.
+#
+### Closing the App
+
+- To stop the application, press Ctrl+C in the terminal where the Flask app is running.
+
 
 
 ## Code Structure
 
 ### The code is structured as follows:
 
-**main.py:**
-
-- Contains functions for managing reminders, health data, and GUI.
-- Handles reminders and health data storage, display, and interaction.
-- Implements a simple GUI using the Tkinter library.
-
 **app.py:**
 
 - Implements a Flask web application to manage reminders and health metrics.
 - Defines routes for different functionalities (add, delete, display reminders, health tracker).
 - Uses JSON files to store reminders and health metrics.
+
+**index.html:**
+- This structured HTML file ensures a clear organization of the user interface components, including forms for adding reminders, displaying existing reminders, and facilitating user interaction.
+- The use of Tailwind CSS contributes to a visually appealing and responsive design.
+- The integrated JavaScript enhances the user experience by allowing the deletion of reminders without the need for page refresh.
+
+**health.html:**
+- This structured HTML file is made for health metrics page of the app. 
+- It has container for health tracking with a reminder card, health tracking form for adding metrics, search feature for filtering metrics by date, list displaying existing health metrics, and javascript functions for searching, displaying, and deleting health records.
 
 **Note:**
 
@@ -161,9 +234,11 @@ python3 app.py
   * Reminders are stored as JSON files (`general_reminders.json`, `medications.json`, `appointments.json`) in app.py.
 
 **Communication:**
+- The `app.py` script uses Flask to create a web interface and the logic is implemented in there.
 
-- The `main.py` script uses Tkinter for a graphical interface.
-- The `app.py` script uses Flask to create a web interface.
+- The `index.html` file is the main page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
+
+- The `health.html` file is the health metrics page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
 
 This outline provides an overview of the code structure, highlighting key functions, data storage, and the interaction between different components.
 
@@ -221,6 +296,7 @@ During the development process, the team encountered a few challenges and limita
 The project benefited significantly from the learnings acquired during the course:
 - Implemented robust algorithms for reminder notifications based on scheduling principles learned in class.
 - Employed secure authentication methods and data encryption techniques covered in course modules.
+- Implemented OS concepts such as threads, file handling, and synchronization to ensure concurrent operations without data loss.
 
 ### Future Improvements
 
