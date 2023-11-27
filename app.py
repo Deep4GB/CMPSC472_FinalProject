@@ -8,9 +8,11 @@ from plyer import notification
 
 app = Flask(__name__)
 
+# Define Locks for synchronization
+reminder_lock = threading.Lock()
+health_metrics_lock = threading.Lock()
+
 # Function to load reminders from JSON files
-
-
 def load_reminders(file_name):
     try:
         with open(file_name, 'r') as file:
@@ -19,8 +21,6 @@ def load_reminders(file_name):
         return []
 
 # Function to save reminders to JSON files
-
-
 def save_reminders(file_name, reminders):
     with open(file_name, 'w') as file:
         json.dump(reminders, file)
@@ -58,12 +58,15 @@ def add_reminder_with_date(reminder_type, reminder_text, reminder_date, reminder
                     reminder_datetime.strftime('%Y-%m-%d %H:%M'))
 
         if reminder_type == 'general':
-            current_general_reminders.append(reminder)
-            save_reminders('data/general_reminders.json',
-                           current_general_reminders)
+            with reminder_lock:
+                current_general_reminders.append(reminder)
+                save_reminders('data/general_reminders.json',
+                               current_general_reminders)
         elif reminder_type == 'appointments':
-            current_appointments.append(reminder)
-            save_reminders('data/appointments.json', current_appointments)
+            with reminder_lock:
+                current_appointments.append(reminder)
+                save_reminders('data/appointments.json',
+                               current_appointments)
 
         # Schedule reminders for the specified date and time
         thread = threading.Thread(target=schedule_notification, args=(
@@ -95,7 +98,7 @@ def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_
             )
             break
 
-        time.sleep(1)
+        time.sleep(1) #check every second if its time to send reminder
 
 
 # Updated route to handle adding reminders with date and time
@@ -103,10 +106,11 @@ def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_
 def index():
     global current_general_reminders, current_medications, current_appointments
 
+    # Get the data from the form
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
-        reminder_date = request.form['date']  # Get the date from the form
+        reminder_date = request.form['date'] 
         reminder_time = request.form['time']
 
         add_reminder_with_date(reminder_type, reminder_text,
@@ -119,11 +123,12 @@ def index():
 def medication_reminder():
     global current_medications
 
+    # Get the data from the form
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         medication_name = request.form['medication_name']
         medication_dose = request.form['medication_dose']
-        reminder_date = request.form['date']  # Get the date from the form
+        reminder_date = request.form['date']
         # Get a list of reminder times selected by the user
         reminder_times = request.form.getlist('reminder_times')
 
@@ -151,10 +156,11 @@ def medication_reminder():
 def add_appointment_reminder():
     global current_appointments
 
+    # Get the data from the form
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
-        reminder_date = request.form['date']  # Get the date from the form
+        reminder_date = request.form['date']  
         reminder_time = request.form['time']
 
         add_reminder_with_date(reminder_type, reminder_text,
@@ -210,8 +216,6 @@ def refresh_data():
 # --------------------------Health Page--------------------------
 
 # Function to load health metrics from JSON file
-
-
 def load_health_metrics(file_name):
     try:
         with open(file_name, 'r') as file:
@@ -220,8 +224,6 @@ def load_health_metrics(file_name):
         return []
 
 # Function to save health metrics to JSON file
-
-
 def save_health_metrics(file_name, health_metrics):
     with open(file_name, 'w') as file:
         json.dump(health_metrics, file)
@@ -230,23 +232,24 @@ def save_health_metrics(file_name, health_metrics):
 # Load health metrics once when the app starts
 health_metrics = load_health_metrics('data/health_data.json')
 
+
 # Function to handle health metrics
-
-
 def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
     global health_metrics
+    
+    # Get the data from the form
     metrics = {
         'blood_pressure': blood_pressure,
         'heart_rate': heart_rate,
         'other_metric': other_metric,
-        'health_date': health_date  # Include the health date
+        'health_date': health_date
     }
-    health_metrics.append(metrics)
-    save_health_metrics('data/health_data.json', health_metrics)
+    with health_metrics_lock:
+        health_metrics.append(metrics)
+        save_health_metrics('data/health_data.json', health_metrics)
+
 
 # Flask route for health metrics with search functionality
-
-
 @app.route('/health', methods=['GET', 'POST'])
 def health_tracker():
     global health_metrics
