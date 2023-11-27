@@ -223,10 +223,16 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Remove the deleted reminder element from the UI
-                        const reminderElement = document.querySelector(`.${reminderType}-reminder-list li[data-identifier="${identifier}"]`);
-                        if (reminderElement) {
-                            reminderElement.remove();
+                        // Remove the reminder from the UI
+                        const remindersContainer = document.querySelector(`.${reminderType}-reminder-list ul`);
+                        const reminders = remindersContainer.getElementsByTagName('li');
+                        
+                        // Find and remove the specific reminder by its text content
+                        for (let i = 0; i < reminders.length; i++) {
+                            if (reminders[i].textContent.includes(identifier)) {
+                                reminders[i].remove(); // Remove the reminder element
+                                break; // Exit the loop after removing the reminder
+                            }
                         }
                     } else {
                         console.error('Failed to delete the reminder');
@@ -237,7 +243,7 @@
                     console.error('Error deleting reminder:', error);
                 });
         }
-    </script>
+    </script>    
 
 </body>
 
