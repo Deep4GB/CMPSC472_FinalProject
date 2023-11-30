@@ -13,6 +13,8 @@ reminder_lock = threading.Lock()
 health_metrics_lock = threading.Lock()
 
 # Function to load reminders from JSON files
+
+
 def load_reminders(file_name):
     try:
         with open(file_name, 'r') as file:
@@ -21,9 +23,12 @@ def load_reminders(file_name):
         return []
 
 # Function to save reminders to JSON files
+
+
 def save_reminders(file_name, reminders):
     with open(file_name, 'w') as file:
         json.dump(reminders, file)
+
 
 # Variables to hold the current reminders
 current_general_reminders = []
@@ -97,24 +102,37 @@ def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_
             )
             break
 
-        time.sleep(1) #check every second if its time to send reminder
+        time.sleep(1)  # check every second if its time to send reminder
 
 # Render home page first
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 # Updated route to handle adding reminders with date and time
+
+
 @app.route('/reminder', methods=['GET', 'POST'])
 def reminder():
-    global current_general_reminders, current_medications, current_appointments
+    global current_general_reminders
 
-    # Get the data from the form
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
+        hours = int(request.form['hours'])
+        minutes = int(request.form['minutes'])
+        am_pm = request.form['am_pm']
+
+        # Convert 12-hour format to 24-hour format
+        if am_pm == 'PM':
+            hours += 12 if hours != 12 else 0
+        else:  # AM
+            hours -= 12 if hours == 12 else 0
+
         reminder_date = request.form['date']
-        reminder_time = request.form['time']
+        reminder_time = f"{hours:02d}:{minutes:02d}"  # Format time as HH:MM
 
         add_reminder_with_date(reminder_type, reminder_text,
                                reminder_date, reminder_time)
@@ -154,6 +172,7 @@ def medication_reminder():
 
     return render_template('reminder.html', current_medications=current_medications)
 
+
 @app.route('/delete_medication', methods=['DELETE'])
 def delete_medication():
     global current_medications
@@ -169,6 +188,7 @@ def delete_medication():
     return jsonify({'success': True})
 
 
+# Updated function to add appointment reminder with date and time
 @app.route('/appointment', methods=['POST'])
 def add_appointment_reminder():
     global current_appointments
@@ -177,8 +197,18 @@ def add_appointment_reminder():
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
-        reminder_date = request.form['date']  
-        reminder_time = request.form['time']
+        reminder_date = request.form['date']
+        reminder_hours = request.form['hours']
+        reminder_minutes = request.form['minutes']
+        am_pm = request.form['am_pm']
+
+        # Convert hours to 24-hour format
+        hours_24 = int(reminder_hours)
+        if am_pm.upper() == 'PM':
+            hours_24 += 12  # Adding 12 hours for PM
+
+        # Format the reminder time
+        reminder_time = f"{hours_24:02d}:{reminder_minutes}"
 
         add_reminder_with_date(reminder_type, reminder_text,
                                reminder_date, reminder_time)
@@ -233,6 +263,8 @@ def refresh_data():
 # --------------------------Health Page--------------------------
 
 # Function to load health metrics from JSON file
+
+
 def load_health_metrics(file_name):
     try:
         with open(file_name, 'r') as file:
@@ -241,6 +273,8 @@ def load_health_metrics(file_name):
         return []
 
 # Function to save health metrics to JSON file
+
+
 def save_health_metrics(file_name, health_metrics):
     with open(file_name, 'w') as file:
         json.dump(health_metrics, file)
@@ -253,7 +287,7 @@ health_metrics = load_health_metrics('data/health_data.json')
 # Function to handle health metrics
 def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
     global health_metrics
-    
+
     # Get the data from the form
     metrics = {
         'blood_pressure': blood_pressure,
@@ -265,19 +299,23 @@ def add_health_metrics(blood_pressure, heart_rate, other_metric, health_date):
         health_metrics.append(metrics)
         save_health_metrics('data/health_data.json', health_metrics)
 
+
 @app.route('/delete_health_record', methods=['DELETE'])
 def delete_health_record():
     global health_metrics
 
     health_date = request.json['health_date']
-    
+
     # Remove the health record with the specified date
-    health_metrics = [metric for metric in health_metrics if metric['health_date'] != health_date]
+    health_metrics = [
+        metric for metric in health_metrics if metric['health_date'] != health_date]
     save_health_metrics('data/health_data.json', health_metrics)
 
     return jsonify({'success': True})
 
 # Flask route for health metrics with search functionality
+
+
 @app.route('/health', methods=['GET', 'POST'])
 def health_tracker():
     global health_metrics
