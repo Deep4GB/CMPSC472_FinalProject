@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reminder App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            background-color: #9cadd0;
+            color: #333;
+        }
+
+        .reminder-card {
+            background-color: rgba(255, 255, 255, 0.836);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .reminder-card-header {
+            padding: 15px;
+        }
+
+        .reminder-form {
+            padding: 20px;
+        }
+
+        .reminder-list {
+            padding: 20px;
+        }
+
+        .delete-btn {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 767px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-150 mt-8">
+
+    <header class="bg-black bg-opacity-20 py-4 px-6 flex justify-between items-center fixed top-0 w-full">
+        <!-- Header Text -->
+        <h1 class="text-3xl font-bold text-white">Reminders</h1>
+        <!-- Container with circular border -->
+        <div class="rounded-full border border-gray-300 flex items-center overflow-hidden">
+            <!-- Options/Buttons -->
+            <div class="space-x-4 flex items-center">
+                <a href="/" class="hover:no-underline">
+                    <button class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+                        Home
+                    </button>
+                </a>
+                <!-- Divider line -->
+                <div class="border-l border-gray-300 h-6"></div>
+                <a href="/health" class="hover:no-underline">
+                    <button class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+                        Health Tracker
+                    </button>
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-40">
+        <!-- General Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-blue-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-3">General Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <!-- General reminder form -->
+                <form method="POST" action="/">
+                    <input type="hidden" name="reminder_type" value="general">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="general_reminder">Reminder:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_reminder"
+                            name="reminder" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="general_date">Date:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="general_date" name="date"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="general_time">Time (HH:MM):</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_time" name="time"
+                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
+                    </div>
+                    <input
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Set Reminder">
+                </form>
+            </div>
+            <div class="reminder-list general-reminder-list">
+                <!-- List of general reminders -->
+                <h2 class="text-lg font-bold">General Reminders:</h2>
+                <ul>
+                    {% for reminder in current_general %}
+                    <li class="flex justify-between items-center py-2 border-b">
+                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
+                        <button class="delete-btn px-3 py-1 rounded"
+                            onclick="deleteReminder('general', '{{reminder[0] }}')">Delete</button>
+
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Medication Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-green-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-3">Medication Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <!-- Medication reminder form -->
+                <form method="POST" action="/medication" class="w-full max-w-md mx-auto">
+                    <input type="hidden" name="reminder_type" value="medication"> <!-- Add this line -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="medication_name">Medication Name:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_name"
+                            name="medication_name" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="medication_dose">Medication Dose:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_dose"
+                            name="medication_dose" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="medication_date">Date:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="medication_date" name="date"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">Reminder Times:</label>
+                        <label class="inline-block mr-4"><input type="checkbox" name="reminder_times" value="08:00">
+                            Morning</label>
+                        <label class="inline-block mr-4"><input type="checkbox" name="reminder_times" value="13:00">
+                            Afternoon</label>
+                        <label class="inline-block"><input type="checkbox" name="reminder_times" value="20:00">
+                            Night</label>
+                        <!-- Add more checkboxes or time input fields as needed -->
+                    </div>
+                    <div class="text-center">
+                        <input
+                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                            type="submit" value="Add Medication Reminder">
+                    </div>
+                </form>
+            </div>
+            <div class="reminder-list medication-reminder-list">
+                <!-- List of medication reminders -->
+                <h2 class="text-lg font-bold">Medication Reminders:</h2>
+                <ul>
+                    {% for medication in current_medications %}
+                    <li class="border-b py-3">
+                        <p class="font-semibold">{{ medication.medication_name }}</p>
+                        <p>Dose: {{ medication.medication_dose }}</p>
+                        <p>Reminder Times:
+                            {% for time in medication.reminder_times %}
+                            {{ time }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Appointment Reminders -->
+        <div class="reminder-card">
+            <div class="reminder-card-header bg-yellow-500 rounded-t-md text-white">
+                <h1 class="text-xl font-bold text-center py-3">Appointment Reminders</h1>
+            </div>
+            <div class="reminder-form">
+                <!-- Appointment reminder form -->
+                <form method="POST" action="/appointment">
+                    <input type="hidden" name="reminder_type" value="appointments">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="appointment_reminder">Appointment
+                            Reminder:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_reminder"
+                            name="reminder" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="appointment_date">Date:</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="appointment_date" name="date"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2" for="appointment_time">Time (HH:MM):</label>
+                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_time" name="time"
+                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
+                    </div>
+                    <input
+                        class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
+                        type="submit" value="Set Appointment Reminder">
+                </form>
+            </div>
+            <div class="reminder-list appointments-reminder-list">
+                <!-- List of appointment reminders -->
+                <h2 class="text-lg font-bold">Appointment Reminders:</h2>
+                <ul>
+                    {% for reminder in current_appointments %}
+                    <li class="flex justify-between items-center py-2 border-b">
+                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
+                        <button class="delete-btn px-3 py-1 rounded"
+                            onclick="deleteReminder('appointments', '{{ reminder[0] }}')">Delete</button>
+
+
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function deleteReminder(reminderType, identifier) {
+            // AJAX request to delete the reminder
+            fetch('/delete_reminder', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reminder_type: reminderType,
+                    identifier: identifier
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the reminder from the UI
+                        const remindersContainer = document.querySelector(`.${reminderType}-reminder-list ul`);
+                        const reminders = remindersContainer.getElementsByTagName('li');
+                        
+                        // Find and remove the specific reminder by its text content
+                        for (let i = 0; i < reminders.length; i++) {
+                            if (reminders[i].textContent.includes(identifier)) {
+                                reminders[i].remove(); // Remove the reminder element
+                                break; // Exit the loop after removing the reminder
+                            }
+                        }
+                    } else {
+                        console.error('Failed to delete the reminder');
+                        // Handle error, show message, etc.
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting reminder:', error);
+                });
+        }
+    </script>    
+
+</body>
+
+</html>

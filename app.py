@@ -100,10 +100,14 @@ def schedule_notification(reminder_type, reminder_text, reminder_date, reminder_
 
         time.sleep(1) #check every second if its time to send reminder
 
+# Render home page first
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # Updated route to handle adding reminders with date and time
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/reminder', methods=['GET', 'POST'])
+def reminder():
     global current_general_reminders, current_medications, current_appointments
 
     # Get the data from the form
@@ -116,7 +120,7 @@ def index():
         add_reminder_with_date(reminder_type, reminder_text,
                                reminder_date, reminder_time)
 
-    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments)
+    return render_template('reminder.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments)
 
 
 @app.route('/medication', methods=['GET', 'POST'])
@@ -149,7 +153,7 @@ def medication_reminder():
             add_reminder_with_date(
                 reminder_type, f"Take {medication_name} ({medication_dose})", reminder_date, time)
 
-    return render_template('index.html', current_medications=current_medications)
+    return render_template('reminder.html', current_medications=current_medications)
 
 
 @app.route('/appointment', methods=['POST'])
@@ -166,7 +170,7 @@ def add_appointment_reminder():
         add_reminder_with_date(reminder_type, reminder_text,
                                reminder_date, reminder_time)
 
-    return render_template('index.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments)
+    return render_template('reminder.html', current_general=current_general_reminders, current_medications=current_medications, current_appointments=current_appointments)
 
 
 @app.route('/delete_reminder', methods=['DELETE'])

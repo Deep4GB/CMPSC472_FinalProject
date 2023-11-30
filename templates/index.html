@@ -3,248 +3,139 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Reminder App</title>
+    <title>Elderly Reminder App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
-        /* General Styles */
         body {
             background-color: #9cadd0;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            margin: 0;
         }
 
-        .reminder-card {
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            margin: auto;
+            flex-grow: 1;
+        }
+
+        .option-card {
+            transition: transform 0.3s, box-shadow 0.3s;
             background-color: rgba(255, 255, 255, 0.836);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            height: 300px;
+            /* Adjust the height of the cards */
         }
 
-        .reminder-card-header {
-            padding: 15px;
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .reminder-form {
-            padding: 20px;
+        /* Styles for the welcome message */
+        .welcome-message {
+            text-align: center;
+            padding: 20px 0;
         }
 
-        .reminder-list {
-            padding: 20px;
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #9cadd0fd;
+            color: rgb(86, 97, 112);
+            font-size: 14px;
         }
 
-        .delete-btn {
-            background-color: #e53e3e;
-            color: #fff;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 767px) {
-            .grid {
-                grid-template-columns: 1fr;
+        /* Loading Animation Styles */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
             }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader {
+            border-top-color: #3498db;
+            animation: spin 1s infinite linear;
         }
     </style>
 </head>
 
-<body class="bg-gray-150 mt-8">
-    <h1 class="text-3xl font-bold text-center mb-10">Elderly Reminder App</h1>
-    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- General Reminders -->
-        <div class="reminder-card">
-            <div class="reminder-card-header bg-blue-500 rounded-t-md text-white">
-                <h1 class="text-xl font-bold text-center py-3">General Reminders</h1>
-            </div>
-            <div class="reminder-form">
-                <!-- General reminder form -->
-                <form method="POST" action="/">
-                    <input type="hidden" name="reminder_type" value="general">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="general_reminder">Reminder:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_reminder"
-                            name="reminder" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="general_date">Date:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="general_date" name="date"
-                            required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="general_time">Time (HH:MM):</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="general_time" name="time"
-                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
-                    </div>
-                    <input
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
-                        type="submit" value="Set Reminder">
-                </form>
-            </div>
-            <div class="reminder-list general-reminder-list">
-                <!-- List of general reminders -->
-                <h2 class="text-lg font-bold">General Reminders:</h2>
-                <ul>
-                    {% for reminder in current_general %}
-                    <li class="flex justify-between items-center py-2 border-b">
-                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
-                        <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('general', '{{reminder[0] }}')">Delete</button>
-
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+<body>
+    <div id="loading" class="flex justify-center items-center fixed inset-0 bg-white z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-24 w-24 mb-4"></div>
+    </div>
+    <div class="container">
+        <div class="px-8 py-8 mt-18">
+            <h1 class="text-5xl font-bold mb-4 text-gray-800">Elderly Reminder App</h1>
+            <p class="text-2xl text-gray-600">A simple web app to help manage daily tasks and monitor health metrics.
+            </p>
         </div>
 
-        <!-- Medication Reminders -->
-        <div class="reminder-card">
-            <div class="reminder-card-header bg-green-500 rounded-t-md text-white">
-                <h1 class="text-xl font-bold text-center py-3">Medication Reminders</h1>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-40">
+            <!-- Reminder Option Card -->
+            <div class="bg-white rounded-lg overflow-hidden shadow-lg option-card">
+                <a href="\reminder" class="block p-8 text-center">
+                    <i class="fas fa-bell text-blue-500 text-5xl mb-4"></i>
+                    <h2 class="text-4xl font-bold mb-4 text-blue-500">Reminder</h2>
+                    <p class="text-lg text-gray-700">Set and manage reminders for daily tasks including:</p>
+                    <ul class="text-md text-gray-700">
+                        <li><i class="fas fa-check-circle text-blue-500"></i> General reminders</li>
+                        <li><i class="fas fa-check-circle text-green-500"></i> Medication reminders</li>
+                        <li><i class="fas fa-check-circle text-yellow-500"></i> Appointment reminders</li>
+                    </ul>
+                </a>
             </div>
-            <div class="reminder-form">
-                <!-- Medication reminder form -->
-                <form method="POST" action="/medication" class="w-full max-w-md mx-auto">
-                    <input type="hidden" name="reminder_type" value="medication"> <!-- Add this line -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="medication_name">Medication Name:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_name"
-                            name="medication_name" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="medication_dose">Medication Dose:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="medication_dose"
-                            name="medication_dose" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="medication_date">Date:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="medication_date" name="date"
-                            required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">Reminder Times:</label>
-                        <label class="inline-block mr-4"><input type="checkbox" name="reminder_times" value="08:00">
-                            Morning</label>
-                        <label class="inline-block mr-4"><input type="checkbox" name="reminder_times" value="13:00">
-                            Afternoon</label>
-                        <label class="inline-block"><input type="checkbox" name="reminder_times" value="20:00">
-                            Night</label>
-                        <!-- Add more checkboxes or time input fields as needed -->
-                    </div>
-                    <div class="text-center">
-                        <input
-                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
-                            type="submit" value="Add Medication Reminder">
-                    </div>
-                </form>
-            </div>
-            <div class="reminder-list medication-reminder-list">
-                <!-- List of medication reminders -->
-                <h2 class="text-lg font-bold">Medication Reminders:</h2>
-                <ul>
-                    {% for medication in current_medications %}
-                    <li class="border-b py-3">
-                        <p class="font-semibold">{{ medication.medication_name }}</p>
-                        <p>Dose: {{ medication.medication_dose }}</p>
-                        <p>Reminder Times:
-                            {% for time in medication.reminder_times %}
-                            {{ time }}{% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <!-- Appointment Reminders -->
-        <div class="reminder-card">
-            <div class="reminder-card-header bg-yellow-500 rounded-t-md text-white">
-                <h1 class="text-xl font-bold text-center py-3">Appointment Reminders</h1>
-            </div>
-            <div class="reminder-form">
-                <!-- Appointment reminder form -->
-                <form method="POST" action="/appointment">
-                    <input type="hidden" name="reminder_type" value="appointments">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="appointment_reminder">Appointment
-                            Reminder:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_reminder"
-                            name="reminder" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="appointment_date">Date:</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="date" id="appointment_date" name="date"
-                            required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="appointment_time">Time (HH:MM):</label>
-                        <input class="border rounded-md px-3 py-2 w-full" type="text" id="appointment_time" name="time"
-                            placeholder="HH:MM" pattern="^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" required>
-                    </div>
-                    <input
-                        class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded cursor-pointer w-full"
-                        type="submit" value="Set Appointment Reminder">
-                </form>
-            </div>
-            <div class="reminder-list appointments-reminder-list">
-                <!-- List of appointment reminders -->
-                <h2 class="text-lg font-bold">Appointment Reminders:</h2>
-                <ul>
-                    {% for reminder in current_appointments %}
-                    <li class="flex justify-between items-center py-2 border-b">
-                        <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
-                        <button class="delete-btn px-3 py-1 rounded"
-                            onclick="deleteReminder('appointments', '{{ reminder[0] }}')">Delete</button>
 
 
-                    </li>
-                    {% endfor %}
-                </ul>
+            <!-- Health Tracker Option Card -->
+            <div class="bg-white rounded-lg overflow-hidden shadow-lg option-card">
+                <a href="\health" class="block p-8 text-center">
+                    <i class="fas fa-heartbeat text-red-500 text-5xl mb-4"></i>
+                    <h2 class="text-4xl font-bold mb-4 text-red-500">Health Tracker</h2>
+                    <p class="text-lg text-gray-700">Monitor health metrics and track progress including:</p>
+                    <ul class="text-left text-gray-700">
+                        <li><i class="fas fa-check-circle text-red-500"></i> Keeping daily health metrics</li>
+                        <li><i class="fas fa-check-circle text-red-500"></i> Ability to search for specific date's data
+                        </li>
+                    </ul>
+                </a>
             </div>
+
+
         </div>
     </div>
 
-    <div class="text-center mt-5 mb-10">
-        <a href="/health"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Check Your
-            Health Metrics!!</a>
-    </div>
+    <footer>
+        <a href="https://github.com/Deep4GB/CMPSC472_FinalProject" target="_blank" rel="noopener noreferrer">&copy; 2023 Elderly Reminder App | All rights reserved</a>
+    </footer>
+    
 
+    <!-- Font Awesome Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+    <!-- Loading -->
     <script>
-        function deleteReminder(reminderType, identifier) {
-            // AJAX request to delete the reminder
-            fetch('/delete_reminder', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    reminder_type: reminderType,
-                    identifier: identifier
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove the reminder from the UI
-                        const remindersContainer = document.querySelector(`.${reminderType}-reminder-list ul`);
-                        const reminders = remindersContainer.getElementsByTagName('li');
-                        
-                        // Find and remove the specific reminder by its text content
-                        for (let i = 0; i < reminders.length; i++) {
-                            if (reminders[i].textContent.includes(identifier)) {
-                                reminders[i].remove(); // Remove the reminder element
-                                break; // Exit the loop after removing the reminder
-                            }
-                        }
-                    } else {
-                        console.error('Failed to delete the reminder');
-                        // Handle error, show message, etc.
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting reminder:', error);
-                });
+        function hideLoading() {
+            setTimeout(function () {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            }, 700);
         }
-    </script>    
 
+        window.onload = hideLoading;
+    </script>
 </body>
 
 </html>
