@@ -25,7 +25,6 @@ def save_reminders(file_name, reminders):
     with open(file_name, 'w') as file:
         json.dump(reminders, file)
 
-
 # Variables to hold the current reminders
 current_general_reminders = []
 current_medications = []
@@ -114,7 +113,7 @@ def reminder():
     if request.method == 'POST':
         reminder_type = request.form['reminder_type']
         reminder_text = request.form['reminder']
-        reminder_date = request.form['date'] 
+        reminder_date = request.form['date']
         reminder_time = request.form['time']
 
         add_reminder_with_date(reminder_type, reminder_text,
@@ -154,6 +153,20 @@ def medication_reminder():
                 reminder_type, f"Take {medication_name} ({medication_dose})", reminder_date, time)
 
     return render_template('reminder.html', current_medications=current_medications)
+
+@app.route('/delete_medication', methods=['DELETE'])
+def delete_medication():
+    global current_medications
+
+    medication_name = request.json['medication_name']
+
+    # Remove the medication reminder with the specified name
+    current_medications = [
+        medication for medication in current_medications if medication['medication_name'] != medication_name
+    ]
+    save_reminders('data/medications.json', current_medications)
+
+    return jsonify({'success': True})
 
 
 @app.route('/appointment', methods=['POST'])

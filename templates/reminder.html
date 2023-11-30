@@ -55,21 +55,23 @@
             <!-- Options/Buttons -->
             <div class="space-x-4 flex items-center">
                 <a href="/" class="hover:no-underline">
-                    <button class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+                    <button
+                        class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
                         Home
                     </button>
                 </a>
                 <!-- Divider line -->
                 <div class="border-l border-gray-300 h-6"></div>
                 <a href="/health" class="hover:no-underline">
-                    <button class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+                    <button
+                        class="bg-opacity-10 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
                         Health Tracker
                     </button>
                 </a>
             </div>
         </div>
     </header>
-    
+
     <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-40">
         <!-- General Reminders -->
         <div class="reminder-card">
@@ -109,7 +111,6 @@
                         <span>{{ reminder[0] }} at {{ reminder[1] }}</span>
                         <button class="delete-btn px-3 py-1 rounded"
                             onclick="deleteReminder('general', '{{reminder[0] }}')">Delete</button>
-
                     </li>
                     {% endfor %}
                 </ul>
@@ -157,8 +158,8 @@
                     </div>
                 </form>
             </div>
+            <!-- List of medication reminders -->
             <div class="reminder-list medication-reminder-list">
-                <!-- List of medication reminders -->
                 <h2 class="text-lg font-bold">Medication Reminders:</h2>
                 <ul>
                     {% for medication in current_medications %}
@@ -170,6 +171,10 @@
                             {{ time }}{% if not loop.last %}, {% endif %}
                             {% endfor %}
                         </p>
+                        <!-- Delete button for each medication reminder -->
+                        <button
+                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded cursor-pointer"
+                            onclick="deleteMedication('{{ medication.medication_name }}')">Delete</button>
                     </li>
                     {% endfor %}
                 </ul>
@@ -243,7 +248,7 @@
                         // Remove the reminder from the UI
                         const remindersContainer = document.querySelector(`.${reminderType}-reminder-list ul`);
                         const reminders = remindersContainer.getElementsByTagName('li');
-                        
+
                         // Find and remove the specific reminder by its text content
                         for (let i = 0; i < reminders.length; i++) {
                             if (reminders[i].textContent.includes(identifier)) {
@@ -260,7 +265,43 @@
                     console.error('Error deleting reminder:', error);
                 });
         }
-    </script>    
+    </script>
+
+    <script>
+        function deleteMedication(medicationName) {
+            // AJAX request to delete the medication reminder
+            fetch('/delete_medication', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'medication_name': medicationName
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the specific medication reminder from the UI
+                        const medicationReminders = document.querySelectorAll('.medication-reminder-list ul li');
+
+                        // Find and remove the specific medication reminder by its name
+                        medicationReminders.forEach(reminder => {
+                            if (reminder.textContent.includes(medicationName)) {
+                                reminder.remove(); // Remove the reminder element
+                                return; // Exit the loop after removing the reminder
+                            }
+                        });
+                    } else {
+                        console.error('Failed to delete medication reminder');
+                        // Handle error, show message, etc.
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting medication reminder:', error);
+                });
+        }
+    </script>
 
 </body>
 
