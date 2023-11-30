@@ -264,7 +264,7 @@ This outline provides an overview of the code structure, highlighting key functi
      - Users can delete reminders.
   - **Test Results:**
      - **Add Reminder:** Successfully added reminders for various tasks.
-     - **Display Reminders:** Reminders displayed accurately in the GUI.
+     - **Display Reminders:** Reminders displayed accurately in the form of notification.
      - **Delete Reminder:** Successfully deleted reminders without errors.
 
 #### 2. **Health Data Tracking:**
@@ -274,16 +274,17 @@ This outline provides an overview of the code structure, highlighting key functi
      - Historical health data can be accessed.
   - **Test Results:**
      - **Input Health Metrics:** Successfully inputted various health metrics.
-     - **Display Health Data:** Health data displayed accurately in the GUI.
+     - **Display Health Data:** Health data displayed accurately in the web app.
      - **Access Historical Data:** Successfully accessed and reviewed historical health data.
+   ![Alt text](Images/Health_Tracking.png)
 
-#### 3. **User-Friendly GUI:**
+#### 3. **User-Friendly Web GUI:**
   - **Functionality:**
-     - GUI is designed to be intuitive and accessible.
+     - Web app is designed to be intuitive and accessible.
      - Clear navigation for all functionalities.
   - **Test Results:**
-     - **Intuitiveness:** Users found the GUI easy to navigate and understand.
-     - **Accessibility:** GUI accommodates varying levels of technological familiarity.
+     - **Intuitiveness:** Users found the application easy to navigate and understand.
+     - **Accessibility:** application accommodates varying levels of technological familiarity.
 
 #### 4. **Bridging Digital Divide:**
    - **Functionality:**
