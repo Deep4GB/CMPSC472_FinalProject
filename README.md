@@ -217,6 +217,11 @@ These concepts work together to facilitate the functioning of the application, m
 - Uses JSON files to store reminders and health metrics.
 
 **index.html:**
+- This structured HTML file is main home page from where user will chose where to redirect.
+- The use of Tailwind CSS contributes to a visually appealing, animations and responsive design.
+- The integrated JavaScript includes importing icons and loading.
+
+**reminder.html:**
 - This structured HTML file ensures a clear organization of the user interface components, including forms for adding reminders, displaying existing reminders, and facilitating user interaction.
 - The use of Tailwind CSS contributes to a visually appealing and responsive design.
 - The integrated JavaScript enhances the user experience by allowing the deletion of reminders without the need for page refresh.
@@ -228,14 +233,15 @@ These concepts work together to facilitate the functioning of the application, m
 **Note:**
 
 - Data Storage:
-
-  * Reminders are stored in text files (`reminders.txt`, `health_data.txt`) in main.py.
-  * Reminders are stored as JSON files (`general_reminders.json`, `medications.json`, `appointments.json`) in app.py.
+  * Reminders are stored as JSON files (`general_reminders.json`, `medications.json`, `appointments.json`) in app.py and reminder.html.
+   * Health Metrics are stored as JSON file as well `health_data.json` via app.py and health.html.
 
 **Communication:**
 - The `app.py` script uses Flask to create a web interface and the logic is implemented in there.
 
-- The `index.html` file is the main page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
+- The `index.html` file is the main(home) page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
+
+- The `reminder.html` file is the reminder page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
 
 - The `health.html` file is the health metrics page of the web application. It contains the HTML code for the web interface. It is frontend of the program.
 
